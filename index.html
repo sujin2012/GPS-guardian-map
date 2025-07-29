@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPS Guardian - Select Geofence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+    #send {
+      font-size: 18px;
+      padding: 10px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h2 align="center">Select 4 Geofence Points</h2>
+  <div id="map"></div>
+  <button id="send" onclick="sendSMS()">📤 Prepare SMS</button>
+
+  <script>
+    let map;
+    let markers = [];
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 10.0, lng: 78.0 },
+        zoom: 6,
+      });
+
+      map.addListener("click", (e) => {
+        if (markers.length < 4) {
+          const marker = new google.maps.Marker({
+            position: e.latLng,
+            map: map,
+            label: `${markers.length + 1}`,
+          });
+          markers.push(marker);
+        } else {
+          alert("Only 4 points allowed.");
+        }
+      });
+    }
+
+    function sendSMS() {
+      if (markers.length !== 4) {
+        alert("Please select 4 points.");
+        return;
+      }
+
+      const points = markers.map(m => `${m.getPosition().lat().toFixed(6)},${m.getPosition().lng().toFixed(6)}`);
+      const smsBody = `GEO:${points.join(';')}`;
+      window.location.href = `sms:&body=${encodeURIComponent(smsBody)}`;
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
+          async defer></script>
+</body>
+</html>
